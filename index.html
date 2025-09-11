@@ -187,6 +187,28 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
         </button>
     </div>
 
+    <!-- Custom Popup Modal -->
+    <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #2D1B69 0%, #1A0B3D 100%); border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+                <h3 style="color: white; font-size: 18px; font-weight: 700; margin: 0;">Jiunge na Program ya YouTube Automation!</h3>
+                <button onclick="closePopup()" style="background: none; border: none; color: #E2E8F0; font-size: 24px; cursor: pointer; padding: 4px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            <div style="text-align: center;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <span style="color: #E2E8F0; font-size: 16px; font-weight: 500;">Gharama:</span>
+                    <span style="color: #10B981; font-size: 20px; font-weight: 700;">Tshs 25,000</span>
+                </div>
+                <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin-bottom: 20px;">Ingiza nambari yako ya simu kwa ajili ya malipo ya mobile money:</p>
+                <input type="tel" id="phoneInput" placeholder="Mf: 0712345678" maxlength="13" style="width: 100%; padding: 16px; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 16px; font-family: 'Inter', sans-serif; margin-bottom: 24px; box-sizing: border-box;">
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="closePopup()" style="flex: 1; padding: 14px 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(255,255,255,0.1); color: #E2E8F0; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; min-height: 48px;">Ghairi</button>
+                    <button onclick="submitPhone()" style="flex: 1; padding: 14px 20px; border: none; border-radius: 10px; background: linear-gradient(45deg, #10B981, #34D399); color: white; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; min-height: 48px; box-shadow: 0 4px 20px rgba(16,185,129,0.3);">Jiunge Sasa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile JavaScript -->
     <script>
         // Revenue dashboard interaction
@@ -212,9 +234,54 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                 navigator.vibrate(100);
             }
             
-            // Redirect to course or show signup form
-            alert('Redirecting to course access - replace with your actual course URL');
+            // Show popup
+            const popup = document.getElementById('popupOverlay');
+            popup.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
+
+        // Close popup
+        function closePopup() {
+            const popup = document.getElementById('popupOverlay');
+            popup.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('phoneInput').value = '';
+        }
+
+        // Submit phone number
+        function submitPhone() {
+            const phoneInput = document.getElementById('phoneInput');
+            const phoneNumber = phoneInput.value.trim();
+            
+            if (phoneNumber === '') {
+                phoneInput.style.borderColor = '#ff4444';
+                phoneInput.focus();
+                return;
+            }
+            
+            // Validate phone number
+            const cleanNumber = phoneNumber.replace(/\D/g, '');
+            if (cleanNumber.length >= 9 && cleanNumber.length <= 13) {
+                // Show success message
+                alert('Asante! Nambari yako imepokelewa.\n\nTutakutumia maelekezo ya malipo kupitia SMS au WhatsApp.\n\nProgram itaanza wiki ijayo!');
+                closePopup();
+            } else {
+                phoneInput.style.borderColor = '#ff4444';
+                phoneInput.focus();
+            }
+        }
+
+        // Close popup when clicking overlay
+        document.addEventListener('DOMContentLoaded', function() {
+            const popup = document.getElementById('popupOverlay');
+            if (popup) {
+                popup.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closePopup();
+                    }
+                });
+            }
+        });
 
         // Prevent zoom on double tap
         let lastTouchEnd = 0;
