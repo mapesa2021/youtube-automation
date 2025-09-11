@@ -36,6 +36,49 @@ app.post('/api/process-payment', async (req, res) => {
             });
         }
         
+        // Test mode for your phone number
+        const isTestMode = cleanNumber === '0754546567';
+        if (isTestMode) {
+            console.log('🧪 TEST MODE: Simulating successful payment for', cleanNumber);
+            
+            // Generate unique order ID
+            const orderId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Store test payment status
+            paymentStatuses.set(orderId, {
+                status: 'PENDING',
+                phoneNumber: cleanNumber,
+                amount: 25000,
+                createdAt: new Date().toISOString()
+            });
+            
+            // Simulate successful payment after 3 seconds
+            setTimeout(() => {
+                const paymentData = paymentStatuses.get(orderId);
+                if (paymentData) {
+                    paymentData.status = 'COMPLETED';
+                    paymentData.transid = 'TEST_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+                    paymentData.reference = 'TEST' + Math.random().toString().substr(2, 6);
+                    paymentData.channel = 'TEST-MODE';
+                    paymentData.msisdn = '255' + cleanNumber;
+                    paymentData.updatedAt = new Date().toISOString();
+                    
+                    paymentStatuses.set(orderId, paymentData);
+                    console.log('🧪 TEST MODE: Payment completed for', cleanNumber);
+                }
+            }, 3000);
+            
+            return res.json({
+                success: true,
+                status: 'processing',
+                message: 'Maelekezo ya malipo yamepelekwa kwenye simu yako. Tafadhali fuata maelekezo ili kukamilisha malipo.',
+                orderId: orderId,
+                phoneNumber: cleanNumber,
+                amount: 25000,
+                testMode: true
+            });
+        }
+        
         // Generate unique order ID
         const orderId = 'yt_auto_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         

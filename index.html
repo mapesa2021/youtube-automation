@@ -341,6 +341,7 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                     <div id="statusMessage" style="color: #F59E0B; font-size: 14px; margin-bottom: 20px; font-weight: 500;">
                         Inasubiri uthibitisho wa malipo...
                     </div>
+                    ${paymentResult.testMode ? '<div style="color: #10B981; font-size: 12px; margin-bottom: 10px; font-weight: 500; background: rgba(16,185,129,0.1); padding: 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">🧪 TEST MODE - Simulating payment</div>' : ''}
                     <button onclick="this.parentElement.parentElement.remove()" 
                         style="background: linear-gradient(45deg, #10B981, #34D399); color: white; 
                         border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; 
@@ -447,25 +448,47 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                     <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;">
                         Nambari yako: <strong>${paymentResult.phoneNumber}</strong><br><br>
                         Malipo ya Tshs ${paymentResult.amount.toLocaleString()} yamepokelewa kwa mafanikio!<br><br>
-                        Tutakutumia maelekezo ya programu kupitia SMS au WhatsApp.<br><br>
-                        <strong>Program itaanza wiki ijayo!</strong>
+                        <strong style="color: #25D366;">Tafadhali bonyeza kitufe cha WhatsApp ili kupata maelekezo ya programu!</strong>
                     </p>
-                    <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: linear-gradient(45deg, #10B981, #34D399); color: white; 
-                        border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; 
-                        font-weight: 600; cursor: pointer;">
-                        Sawa
+                    <button onclick="redirectToWhatsApp('${paymentResult.phoneNumber}', '${paymentResult.amount}')" 
+                        style="width: 100%; background: linear-gradient(45deg, #25D366, #128C7E); color: white; 
+                        border: none; padding: 16px 24px; border-radius: 12px; font-size: 16px; 
+                        font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+                        📱 Jiunge na WhatsApp
                     </button>
                 </div>
             `;
             document.body.appendChild(successMsg);
             
-            // Auto remove after 8 seconds
+            // Auto remove after 15 seconds
             setTimeout(() => {
                 if (successMsg.parentNode) {
                     successMsg.parentNode.removeChild(successMsg);
                 }
-            }, 8000);
+            }, 15000);
+        }
+
+        // Redirect to WhatsApp with prefilled message
+        function redirectToWhatsApp(phoneNumber, amount) {
+            const whatsappNumber = "255754546567"; // Your WhatsApp number with country code
+            const message = `Hujambo! Nimekamilisha malipo ya Tshs ${parseInt(amount).toLocaleString()} kwa ajili ya Program ya YouTube Automation.
+
+Nambari yangu ya simu: ${phoneNumber}
+Kiasi kilicholipwa: Tshs ${parseInt(amount).toLocaleString()}
+
+Tafadhali nipe maelekezo ya programu. Asante!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
+            // Open WhatsApp in new tab
+            window.open(whatsappUrl, '_blank');
+            
+            // Close the success modal
+            const successModal = document.querySelector('[style*="position: fixed"]');
+            if (successModal) {
+                successModal.remove();
+            }
         }
 
         // Show payment error
