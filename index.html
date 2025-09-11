@@ -440,7 +440,11 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                 <div style="background: linear-gradient(135deg, #2D1B69 0%, #1A0B3D 100%); 
                     border-radius: 16px; padding: 32px 24px; max-width: 350px; width: 100%; 
                     text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
-                    border: 1px solid rgba(255,255,255,0.1);">
+                    border: 1px solid rgba(255,255,255,0.1); position: relative;">
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                        style="position: absolute; top: 16px; right: 16px; background: none; border: none; 
+                        color: #E2E8F0; font-size: 24px; cursor: pointer; padding: 4px; border-radius: 50%; 
+                        width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
                     <div style="width: 60px; height: 60px; background: linear-gradient(45deg, #10B981, #34D399); 
                         border-radius: 50%; display: flex; align-items: center; justify-content: center; 
                         font-size: 30px; color: white; margin: 0 auto 20px;">✓</div>
@@ -448,24 +452,17 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                     <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;">
                         Nambari yako: <strong>${paymentResult.phoneNumber}</strong><br><br>
                         Malipo ya Tshs ${paymentResult.amount.toLocaleString()} yamepokelewa kwa mafanikio!<br><br>
-                        <strong style="color: #25D366;">Tafadhali bonyeza kitufe cha WhatsApp ili kupata maelekezo ya programu!</strong>
+                        <strong style="color: #25D366;">Tafadhali bonyeza kitufe cha "Jiunge na Program" ili kupata maelekezo ya programu!</strong>
                     </p>
                     <button onclick="redirectToWhatsApp('${paymentResult.phoneNumber}', '${paymentResult.amount}')" 
                         style="width: 100%; background: linear-gradient(45deg, #25D366, #128C7E); color: white; 
                         border: none; padding: 16px 24px; border-radius: 12px; font-size: 16px; 
                         font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
-                        📱 Jiunge na WhatsApp
+                        📱 Jiunge na Program
                     </button>
                 </div>
             `;
             document.body.appendChild(successMsg);
-            
-            // Auto remove after 15 seconds
-            setTimeout(() => {
-                if (successMsg.parentNode) {
-                    successMsg.parentNode.removeChild(successMsg);
-                }
-            }, 15000);
         }
 
         // Redirect to WhatsApp with prefilled message
