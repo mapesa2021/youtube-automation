@@ -289,9 +289,15 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Payment successful
-                    showPaymentSuccess(result);
-                    closePopup();
+                    if (result.status === 'processing') {
+                        // Payment request sent, waiting for user to complete
+                        showPaymentProcessing(result);
+                        closePopup();
+                    } else {
+                        // Payment confirmed successful
+                        showPaymentSuccess(result);
+                        closePopup();
+                    }
                 } else {
                     // Payment failed
                     showPaymentError(result.message);
@@ -306,6 +312,119 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
             }
+        }
+
+        // Show payment processing
+        function showPaymentProcessing(paymentResult) {
+            const processingMsg = document.createElement('div');
+            processingMsg.id = 'paymentProcessingModal';
+            processingMsg.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 10001; display: flex; 
+                align-items: center; justify-content: center; padding: 20px;
+            `;
+            processingMsg.innerHTML = `
+                <div style="background: linear-gradient(135deg, #2D1B69 0%, #1A0B3D 100%); 
+                    border-radius: 16px; padding: 32px 24px; max-width: 350px; width: 100%; 
+                    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
+                    border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: 60px; height: 60px; background: linear-gradient(45deg, #F59E0B, #FCD34D); 
+                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                        font-size: 30px; color: white; margin: 0 auto 20px; animation: spin 2s linear infinite;">⏳</div>
+                    <h4 style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Malipo Inachakata</h4>
+                    <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;">
+                        ${paymentResult.message}<br><br>
+                        <strong>Nambari yako:</strong> ${paymentResult.phoneNumber}<br>
+                        <strong>Kiasi:</strong> Tshs ${paymentResult.amount.toLocaleString()}<br><br>
+                        <em>Angalia simu yako kwa maelekezo ya malipo.</em>
+                    </p>
+                    <div id="statusMessage" style="color: #F59E0B; font-size: 14px; margin-bottom: 20px; font-weight: 500;">
+                        Inasubiri uthibitisho wa malipo...
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                        style="background: linear-gradient(45deg, #10B981, #34D399); color: white; 
+                        border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; 
+                        font-weight: 600; cursor: pointer;">
+                        Funga
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(processingMsg);
+            
+            // Add spinning animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Start polling for payment status
+            pollPaymentStatus(paymentResult.orderId);
+        }
+
+        // Poll payment status
+        async function pollPaymentStatus(orderId) {
+            const maxAttempts = 30; // Poll for 5 minutes (10 seconds * 30)
+            let attempts = 0;
+            
+            const poll = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/payment-status/${orderId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        if (result.status === 'COMPLETED') {
+                            // Payment successful
+                            const processingModal = document.getElementById('paymentProcessingModal');
+                            if (processingModal) {
+                                processingModal.remove();
+                            }
+                            showPaymentSuccess({
+                                phoneNumber: result.phoneNumber,
+                                amount: result.amount,
+                                orderId: result.orderId
+                            });
+                            return;
+                        } else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
+                            // Payment failed
+                            const processingModal = document.getElementById('paymentProcessingModal');
+                            if (processingModal) {
+                                processingModal.remove();
+                            }
+                            showPaymentError('Malipo yamekataliwa au yameshindwa. Tafadhali jaribu tena.');
+                            return;
+                        }
+                    }
+                    
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        // Update status message
+                        const statusMessage = document.getElementById('statusMessage');
+                        if (statusMessage) {
+                            statusMessage.textContent = `Inasubiri uthibitisho wa malipo... (${attempts}/${maxAttempts})`;
+                        }
+                        setTimeout(poll, 10000); // Poll every 10 seconds
+                    } else {
+                        // Timeout
+                        const processingModal = document.getElementById('paymentProcessingModal');
+                        if (processingModal) {
+                            processingModal.remove();
+                        }
+                        showPaymentError('Malipo yamechelewa. Tafadhali angalia simu yako au jaribu tena.');
+                    }
+                } catch (error) {
+                    console.error('Error polling payment status:', error);
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        setTimeout(poll, 10000);
+                    }
+                }
+            };
+            
+            poll();
         }
 
         // Show payment success
