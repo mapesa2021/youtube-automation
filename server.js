@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const { default: nodeFetch } = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // In-memory storage for payment status (in production, use a database)
 const paymentStatuses = new Map();
@@ -96,15 +98,14 @@ app.post('/api/process-payment', async (req, res) => {
             buyer_email: "student@youtubeautomation.com",
             buyer_name: "YouTube Automation Student",
             buyer_phone: cleanNumber,
-            amount: 25000, // Tshs 25,000
-            webhook_url: `http://localhost:${PORT}/api/payment-webhook`
+            amount: 25000 // Tshs 25,000
         };
         
         console.log('Processing payment for:', cleanNumber);
         console.log('Order ID:', orderId);
         
         // Make API call to Zeno
-        const response = await fetch(ZENO_API_URL, {
+        const response = await nodeFetch(ZENO_API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ app.get('/api/payment-status/:orderId', async (req, res) => {
         // If still pending, check with Zeno API
         if (localStatus.status === 'PENDING') {
             try {
-                const zenoResponse = await fetch(`https://zenoapi.com/api/payments/order-status?order_id=${orderId}`, {
+                const zenoResponse = await nodeFetch(`https://zenoapi.com/api/payments/order-status?order_id=${orderId}`, {
                     method: 'GET',
                     headers: {
                         'x-api-key': ZENO_API_KEY
