@@ -199,12 +199,10 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
                     <span style="color: #E2E8F0; font-size: 16px; font-weight: 500;">Gharama:</span>
                     <span style="color: #10B981; font-size: 20px; font-weight: 700;">Tshs 25,000</span>
                 </div>
-                <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin-bottom: 20px;">Ingiza nambari yako ya simu kwa ajili ya malipo ya mobile money:</p>
-                <input type="tel" id="phoneInput" placeholder="Mf: 0712345678" maxlength="13" style="width: 100%; padding: 16px; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 16px; font-family: 'Inter', sans-serif; margin-bottom: 24px; box-sizing: border-box;">
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="closePopup()" style="flex: 1; padding: 14px 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(255,255,255,0.1); color: #E2E8F0; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; min-height: 48px;">Ghairi</button>
-                    <button onclick="submitPhone()" style="flex: 1; padding: 14px 20px; border: none; border-radius: 10px; background: linear-gradient(45deg, #10B981, #34D399); color: white; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; min-height: 48px; box-shadow: 0 4px 20px rgba(16,185,129,0.3);">Jiunge Sasa</button>
-                </div>
+                <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin-bottom: 30px;">Bonyeza kitufe hapa chini ili kupata maelekezo ya malipo na kuunganishwa na darasa:</p>
+                <button onclick="redirectToWhatsAppDirect()" style="width: 100%; padding: 16px 20px; border: none; border-radius: 12px; background: linear-gradient(45deg, #25D366, #128C7E); color: white; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; min-height: 52px; box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span>💬</span> Jiunge kupitia WhatsApp
+                </button>
             </div>
         </div>
     </div>
@@ -245,187 +243,21 @@ TAHADHARI: muda umebaki mchache , wahi kujiunga sasa kabla muda haujaisha.</span
             const popup = document.getElementById('popupOverlay');
             popup.style.display = 'none';
             document.body.style.overflow = 'auto';
-            document.getElementById('phoneInput').value = '';
         }
 
-        // Submit phone number
-        async function submitPhone() {
-            const phoneInput = document.getElementById('phoneInput');
-            const phoneNumber = phoneInput.value.trim();
-            
-            if (phoneNumber === '') {
-                phoneInput.style.borderColor = '#ff4444';
-                phoneInput.focus();
-                return;
-            }
-            
-            // Validate phone number
-            const cleanNumber = phoneNumber.replace(/\D/g, '');
-            if (cleanNumber.length < 9 || cleanNumber.length > 13) {
-                phoneInput.style.borderColor = '#ff4444';
-                phoneInput.focus();
-                return;
-            }
-            
-            // Show loading state
-            const submitBtn = document.querySelector('button[onclick="submitPhone()"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Inachakata...';
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
-            
-            try {
-                // Call our backend API
-                const response = await fetch('http://localhost:3001/api/process-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phoneNumber: cleanNumber
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    if (result.status === 'processing') {
-                        // Payment request sent, waiting for user to complete
-                        showPaymentProcessing(result);
-                        closePopup();
-                    } else {
-                        // Payment confirmed successful
-                        showPaymentSuccess(result);
-                        closePopup();
-                    }
-                } else {
-                    // Payment failed
-                    showPaymentError(result.message);
-                }
-                
-            } catch (error) {
-                console.error('Payment error:', error);
-                showPaymentError('Kuna tatizo la mtandao. Tafadhali jaribu tena baadaye.');
-            } finally {
-                // Reset button state
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-            }
-        }
+        // Redirect to WhatsApp directly
+        function redirectToWhatsAppDirect() {
+            const whatsappNumber = "255754546567"; // Your WhatsApp number with country code
+            const message = `Hujambo! Nataka kujifunza kuhusu Program ya YouTube Automation na kufanya malipo ya Tshs 25,000. Tafadhali nipe maelekezo.`;
 
-        // Show payment processing
-        function showPaymentProcessing(paymentResult) {
-            const processingMsg = document.createElement('div');
-            processingMsg.id = 'paymentProcessingModal';
-            processingMsg.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                background: rgba(0,0,0,0.8); z-index: 10001; display: flex; 
-                align-items: center; justify-content: center; padding: 20px;
-            `;
-            processingMsg.innerHTML = `
-                <div style="background: linear-gradient(135deg, #2D1B69 0%, #1A0B3D 100%); 
-                    border-radius: 16px; padding: 32px 24px; max-width: 350px; width: 100%; 
-                    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
-                    border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="width: 60px; height: 60px; background: linear-gradient(45deg, #F59E0B, #FCD34D); 
-                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                        font-size: 30px; color: white; margin: 0 auto 20px; animation: spin 2s linear infinite;">⏳</div>
-                    <h4 style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Malipo Inachakata</h4>
-                    <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;">
-                        ${paymentResult.message}<br><br>
-                        <strong>Nambari yako:</strong> ${paymentResult.phoneNumber}<br>
-                        <strong>Kiasi:</strong> Tshs ${paymentResult.amount.toLocaleString()}<br><br>
-                        <em>Angalia simu yako kwa maelekezo ya malipo.</em>
-                    </p>
-                    <div id="statusMessage" style="color: #F59E0B; font-size: 14px; margin-bottom: 20px; font-weight: 500;">
-                        Inasubiri uthibitisho wa malipo...
-                    </div>
-                    ${paymentResult.testMode ? '<div style="color: #10B981; font-size: 12px; margin-bottom: 10px; font-weight: 500; background: rgba(16,185,129,0.1); padding: 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">🧪 TEST MODE - Simulating payment</div>' : ''}
-                    <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: linear-gradient(45deg, #10B981, #34D399); color: white; 
-                        border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; 
-                        font-weight: 600; cursor: pointer;">
-                        Funga
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(processingMsg);
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
             
-            // Add spinning animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
+            // Open WhatsApp in new tab
+            window.open(whatsappUrl, '_blank');
             
-            // Start polling for payment status
-            pollPaymentStatus(paymentResult.orderId);
-        }
-
-        // Poll payment status
-        async function pollPaymentStatus(orderId) {
-            const maxAttempts = 30; // Poll for 5 minutes (10 seconds * 30)
-            let attempts = 0;
-            
-            const poll = async () => {
-                try {
-                    const response = await fetch(`http://localhost:3001/api/payment-status/${orderId}`);
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        if (result.status === 'COMPLETED') {
-                            // Payment successful
-                            const processingModal = document.getElementById('paymentProcessingModal');
-                            if (processingModal) {
-                                processingModal.remove();
-                            }
-                            showPaymentSuccess({
-                                phoneNumber: result.phoneNumber,
-                                amount: result.amount,
-                                orderId: result.orderId
-                            });
-                            return;
-                        } else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
-                            // Payment failed
-                            const processingModal = document.getElementById('paymentProcessingModal');
-                            if (processingModal) {
-                                processingModal.remove();
-                            }
-                            showPaymentError('Malipo yamekataliwa au yameshindwa. Tafadhali jaribu tena.');
-                            return;
-                        }
-                    }
-                    
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        // Update status message
-                        const statusMessage = document.getElementById('statusMessage');
-                        if (statusMessage) {
-                            statusMessage.textContent = `Inasubiri uthibitisho wa malipo... (${attempts}/${maxAttempts})`;
-                        }
-                        setTimeout(poll, 10000); // Poll every 10 seconds
-                    } else {
-                        // Timeout
-                        const processingModal = document.getElementById('paymentProcessingModal');
-                        if (processingModal) {
-                            processingModal.remove();
-                        }
-                        showPaymentError('Malipo yamechelewa. Tafadhali angalia simu yako au jaribu tena.');
-                    }
-                } catch (error) {
-                    console.error('Error polling payment status:', error);
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        setTimeout(poll, 10000);
-                    }
-                }
-            };
-            
-            poll();
+            // Close the popup
+            closePopup();
         }
 
         // Show payment success
@@ -486,44 +318,6 @@ Tafadhali nipe maelekezo ya programu. Asante!`;
             if (successModal) {
                 successModal.remove();
             }
-        }
-
-        // Show payment error
-        function showPaymentError(errorMessage) {
-            const errorMsg = document.createElement('div');
-            errorMsg.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                background: rgba(0,0,0,0.8); z-index: 10001; display: flex; 
-                align-items: center; justify-content: center; padding: 20px;
-            `;
-            errorMsg.innerHTML = `
-                <div style="background: linear-gradient(135deg, #2D1B69 0%, #1A0B3D 100%); 
-                    border-radius: 16px; padding: 32px 24px; max-width: 350px; width: 100%; 
-                    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
-                    border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid #ff4444;">
-                    <div style="width: 60px; height: 60px; background: #ff4444; 
-                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                        font-size: 30px; color: white; margin: 0 auto 20px;">✕</div>
-                    <h4 style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Malipo Yameshindwa</h4>
-                    <p style="color: #E2E8F0; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;">
-                        ${errorMessage}
-                    </p>
-                    <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: linear-gradient(45deg, #10B981, #34D399); color: white; 
-                        border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; 
-                        font-weight: 600; cursor: pointer;">
-                        Sawa
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(errorMsg);
-            
-            // Auto remove after 10 seconds
-            setTimeout(() => {
-                if (errorMsg.parentNode) {
-                    errorMsg.parentNode.removeChild(errorMsg);
-                }
-            }, 10000);
         }
 
         // Close popup when clicking overlay
