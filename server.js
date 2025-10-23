@@ -79,6 +79,15 @@ app.post('/api/process-payment', async (req, res) => {
         const responseText = await response.text();
         console.log('ZenoPay API response text:', responseText);
         
+        // Handle non-JSON responses (like 504 errors)
+        if (!responseText.startsWith('{') && !responseText.startsWith('[')) {
+            console.error('Received non-JSON response from ZenoPay API:', responseText);
+            return res.status(502).json({
+                success: false,
+                message: 'Tatizo la mawasiliano na mfumo wa malipo. Tafadhali jaribu tena baadaye.'
+            });
+        }
+        
         // Try to parse JSON, but handle if it's not valid JSON
         let result;
         try {
@@ -121,7 +130,7 @@ app.post('/api/process-payment', async (req, res) => {
         console.error('Payment processing error:', error);
         res.status(500).json({
             success: false,
-            message: 'Kuna tatizo la mtandao. Tafadhali jaribu tena baadaye.'
+            message: 'Tatizo limetokea wakati wa kuunganisha na seva ya malipo. Tafadhali jaribu tena baadaye au wasiliana na usaidizi.'
         });
     }
 });
@@ -153,24 +162,47 @@ app.get('/api/payment-status/:orderId', async (req, res) => {
             });
         }
         
-        // Check with ZenoPay API for the latest status
-        const statusResponse = await nodeFetch(`${ZENO_ORDER_STATUS_URL}?order_id=${orderId}`, {
-            method: 'GET',
-            headers: {
-                'x-api-key': ZENO_API_KEY
+        // Retry mechanism for checking with ZenoPay API
+        let statusResponse, statusText;
+        let retries = 3;
+        
+        while (retries > 0) {
+            try {
+                statusResponse = await nodeFetch(`${ZENO_ORDER_STATUS_URL}?order_id=${orderId}`, {
+                    method: 'GET',
+                    headers: {
+                        'x-api-key': ZENO_API_KEY
+                    }
+                });
+                
+                statusText = await statusResponse.text();
+                console.log('ZenoPay Order Status API response:', statusText);
+                
+                // If we get a valid response, break out of retry loop
+                if (statusText.startsWith('{') || statusText.startsWith('[')) {
+                    break;
+                }
+            } catch (fetchError) {
+                console.error(`Error fetching status (attempt ${4 - retries}):`, fetchError);
             }
-        });
+            
+            retries--;
+            // Wait 1 second before retrying
+            if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
         
-        const statusText = await statusResponse.text();
-        console.log('ZenoPay Order Status API response:', statusText);
-        
-        // Handle non-JSON responses (like 504 errors)
-        if (!statusText.startsWith('{') && !statusText.startsWith('[')) {
-            console.error('Received non-JSON response from ZenoPay Order Status API:', statusText);
-            return res.status(500).json({
-                success: false,
+        // If all retries failed or we still have non-JSON response
+        if (!statusText || (!statusText.startsWith('{') && !statusText.startsWith('['))) {
+            console.error('Received non-JSON response from ZenoPay Order Status API after retries:', statusText);
+            // Instead of failing, we'll continue to show processing status
+            return res.json({
+                success: true,
                 status: 'processing',
-                message: 'Tafadhali subiri kidogo, tunakagua hali ya malipo yako.'
+                message: 'Tunaendelea kusubiri uthibitisho wa malipo. Tafadhali subiri kidogo na ujaribu tena.',
+                phoneNumber: storedStatus.phoneNumber,
+                amount: storedStatus.amount
             });
         }
         
@@ -179,9 +211,13 @@ app.get('/api/payment-status/:orderId', async (req, res) => {
             statusResult = statusText ? JSON.parse(statusText) : {};
         } catch (parseError) {
             console.error('Failed to parse JSON status response:', parseError);
-            return res.status(500).json({
-                success: false,
-                message: 'Tatizo limetokea katika kuangalia hali ya malipo.'
+            // Instead of failing, we'll continue to show processing status
+            return res.json({
+                success: true,
+                status: 'processing',
+                message: 'Tunaendelea kusubiri uthibitisho wa malipo. Tafadhali subiri kidogo na ujaribu tena.',
+                phoneNumber: storedStatus.phoneNumber,
+                amount: storedStatus.amount
             });
         }
         
@@ -240,7 +276,7 @@ app.get('/api/payment-status/:orderId', async (req, res) => {
         res.status(500).json({
             success: false,
             status: 'processing',
-            message: 'Tatizo limetokea. Tunaendelea kusubiri malipo yako.'
+            message: 'Tatizo limetokea wakati wa kuangalia hali ya malipo. Tunajaribu tena kwa ajili yako.'
         });
     }
 });
