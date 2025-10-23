@@ -9,9 +9,26 @@ exports.handler = async (event, context) => {
     console.log('Process payment function called');
     console.log('Event:', JSON.stringify(event, null, 2));
     
+    // Handle CORS preflight requests
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            },
+            body: ''
+        };
+    }
+    
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 success: false,
                 message: 'Method not allowed'
@@ -29,6 +46,10 @@ exports.handler = async (event, context) => {
         if (!phoneNumber || phoneNumber.trim() === '') {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: 'Nambari ya simu ni lazima'
@@ -43,6 +64,10 @@ exports.handler = async (event, context) => {
         if (cleanNumber.length < 9 || cleanNumber.length > 13) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: 'Nambari ya simu si sahihi'
@@ -88,6 +113,10 @@ exports.handler = async (event, context) => {
             console.error('Received non-JSON response from ZenoPay API:', responseText);
             return {
                 statusCode: 502,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: 'Tatizo la mawasiliano na mfumo wa malipo. Tafadhali jaribu tena baadaye.'
@@ -104,6 +133,10 @@ exports.handler = async (event, context) => {
             console.error('Response text was:', responseText);
             return {
                 statusCode: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: 'Tatizo limetokea katika mchakato wa malipo. Tafadhali jaribu tena.'
@@ -116,6 +149,10 @@ exports.handler = async (event, context) => {
             console.log('Payment request sent successfully:', result);
             return {
                 statusCode: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: true,
                     status: 'processing',
@@ -129,6 +166,10 @@ exports.handler = async (event, context) => {
             console.error('Payment request failed:', result);
             return {
                 statusCode: response.status >= 400 ? response.status : 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: result.message || 'Malipo yameshindwa. Tafadhali jaribu tena.'
@@ -140,6 +181,10 @@ exports.handler = async (event, context) => {
         console.error('Payment processing error:', error);
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 success: false,
                 message: 'Tatizo limetokea wakati wa kuunganisha na seva ya malipo. Tafadhali jaribu tena baadaye.'

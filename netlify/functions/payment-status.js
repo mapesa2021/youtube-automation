@@ -10,9 +10,26 @@ const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq
 const paymentStatuses = new Map();
 
 exports.handler = async (event, context) => {
+    // Handle CORS preflight requests
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS'
+            },
+            body: ''
+        };
+    }
+    
     if (event.httpMethod !== 'GET') {
         return {
             statusCode: 405,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 success: false,
                 message: 'Method not allowed'
@@ -30,6 +47,10 @@ exports.handler = async (event, context) => {
         if (!orderId) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: false,
                     message: 'Order ID is required'
@@ -91,6 +112,10 @@ exports.handler = async (event, context) => {
             // Instead of failing, we'll continue to show processing status
             return {
                 statusCode: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: true,
                     status: 'processing',
@@ -107,6 +132,10 @@ exports.handler = async (event, context) => {
             // Instead of failing, we'll continue to show processing status
             return {
                 statusCode: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     success: true,
                     status: 'processing',
@@ -130,6 +159,10 @@ exports.handler = async (event, context) => {
                 
                 return {
                     statusCode: 200,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         success: true,
                         status: 'completed',
@@ -149,6 +182,10 @@ exports.handler = async (event, context) => {
                 
                 return {
                     statusCode: 200,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         success: false,
                         status: 'failed',
@@ -161,6 +198,10 @@ exports.handler = async (event, context) => {
         // If not completed or failed, still processing
         return {
             statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 success: true,
                 status: 'processing',
@@ -172,6 +213,10 @@ exports.handler = async (event, context) => {
         console.error('Payment status check error:', error);
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 success: false,
                 status: 'processing',
