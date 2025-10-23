@@ -299,10 +299,15 @@
             
             // Fetch payment status
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const statusUrl = isLocal ? `/api/payment-status/${orderId}` : `/.netlify/functions/payment-status?orderId=${orderId}`;
+            const statusUrl = isLocal ? `/api/payment-status/${orderId}` : `/.netlify/functions/payment-status-new?orderId=${orderId}`;
+            console.log('Status URL:', statusUrl);
             fetch(statusUrl)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Status response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Status response data:', data);
                     if (data.status === 'completed') {
                         // Show success message
                         showPaymentSuccess({
