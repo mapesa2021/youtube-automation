@@ -1,7 +1,7 @@
 {
   "name": "youtube-automation-payment-api",
   "version": "1.0.0",
-  "description": "Backend API for YouTube Automation course payments via Zeno",
+  "description": "Backend API for YouTube Automation course payments via ClubZilla",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -17,7 +17,7 @@
   },
   "keywords": [
     "payment",
-    "zeno",
+    "clubzilla",
     "youtube",
     "automation",
     "mobile-money"

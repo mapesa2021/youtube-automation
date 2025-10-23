@@ -22,16 +22,6 @@ body {
     user-select: none;
 }
 
-/* Mobile loading animation */
-body:not(.loaded) {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-body.loaded {
-    opacity: 1;
-}
-
 /* Touch device optimizations */
 .touch-device * {
     -webkit-tap-highlight-color: transparent;
@@ -602,93 +592,16 @@ body.loaded {
     opacity: 0.8;
 }
 
-/* Mobile Navigation */
-.mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 12px 0;
-    height: 60px;
-    z-index: 1000;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Mobile nav optimization */
-@media (max-width: 480px) {
-    .mobile-nav {
-        height: 56px;
-        padding: 10px 0;
-    }
-}
-
-.nav-item {
-    font-size: 20px;
-    color: #E2E8F0;
-    cursor: pointer;
-    transition: color 0.2s ease, transform 0.1s ease;
-    -webkit-tap-highlight-color: transparent;
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.nav-item:hover {
-    color: #A78BFA;
-}
-
-.nav-item:active {
-    transform: scale(0.9);
-    color: #A78BFA;
-}
-
-/* Mobile nav item optimization */
-@media (max-width: 480px) {
-    .nav-item {
-        font-size: 18px;
-    }
-}
-
-.home {
-    background: #A78BFA;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.home:active {
-    transform: scale(0.9);
-    background: #8B5CF6;
-}
-
-/* Mobile home button optimization */
-@media (max-width: 480px) {
-    .home {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
-    }
-}
-
 /* CTA Button */
 .cta-container {
     margin: 32px 0;
     display: flex;
     justify-content: center;
+}
+
+/* Hide the top CTA button specifically */
+.container > .cta-container {
+    display: none;
 }
 
 .cta-button {
@@ -713,12 +626,12 @@ body.loaded {
 /* Floating CTA Button */
 .floating-cta {
     position: fixed;
-    bottom: 80px;
+    bottom: 20px; /* Adjusted position since we removed the bottom nav */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
+    opacity: 1; /* Make it visible by default */
+    visibility: visible; /* Make it visible by default */
     transition: all 0.3s ease;
     animation: floatPulse 2s ease-in-out infinite;
 }
@@ -888,31 +801,6 @@ body.loaded {
     
     .description p {
         margin-bottom: 10px;
-    }
-}
-
-/* Progress Bar */
-.progress-bar {
-    position: fixed;
-    bottom: 60px;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #10B981, #34D399);
-    animation: progress 3s ease-in-out infinite;
-    z-index: 999;
-}
-
-@keyframes progress {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(0%); }
-}
-
-/* Mobile progress bar optimization */
-@media (max-width: 480px) {
-    .progress-bar {
-        bottom: 56px;
-        height: 3px;
     }
 }
 
