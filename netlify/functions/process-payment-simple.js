@@ -80,7 +80,7 @@ exports.handler = async (event, context) => {
             buyer_email: 'student@youtubeautomation.com',
             buyer_name: 'YouTube Automation Student',
             buyer_phone: cleanNumber,
-            amount: 5000
+            amount: 500
         };
         
         console.log('Processing payment for:', cleanNumber);
@@ -155,7 +155,7 @@ exports.handler = async (event, context) => {
                     status: 'processing',
                     message: 'Maelekezo ya malipo yamepelekwa kwenye simu yako. Tafadhali fuata maelekezo ili kukamilisha malipo.',
                     phoneNumber: cleanNumber,
-                    amount: 5000,
+                    amount: 500,
                     orderId: orderId
                 })
             };

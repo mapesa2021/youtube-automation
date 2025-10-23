@@ -51,7 +51,7 @@ app.post('/api/process-payment', async (req, res) => {
         paymentStatuses.set(orderId, {
             status: 'processing',
             phoneNumber: cleanNumber,
-            amount: 5000,
+            amount: 500,
             createdAt: new Date()
         });
         
@@ -61,7 +61,7 @@ app.post('/api/process-payment', async (req, res) => {
             buyer_email: 'student@youtubeautomation.com',
             buyer_name: 'YouTube Automation Student',
             buyer_phone: cleanNumber,
-            amount: 5000
+            amount: 500
         };
         
         console.log('Processing payment for:', cleanNumber);
@@ -114,7 +114,7 @@ app.post('/api/process-payment', async (req, res) => {
                 status: 'processing',
                 message: 'Maelekezo ya malipo yamepelekwa kwenye simu yako. Tafadhali fuata maelekezo ili kukamilisha malipo.',
                 phoneNumber: cleanNumber,
-                amount: 5000,
+                amount: 500,
                 orderId: orderId
             });
         } else {
