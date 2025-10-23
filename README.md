@@ -30,7 +30,7 @@ A complete landing page with Zeno payment integration for YouTube Automation cou
    npm install
    ```
 
-3. **Start the backend server**
+3. **Start the backend server** (for local development)
    ```bash
    node server.js
    ```
@@ -46,14 +46,14 @@ A complete landing page with Zeno payment integration for YouTube Automation cou
 
 1. **User clicks "JIUNGE NA PROGRAM →"** button
 2. **Custom popup appears** asking for phone number
-3. **User enters phone number** (Tshs 25,000)
-4. **Frontend calls backend API** (`/api/process-payment`)
+3. **User enters phone number** (Tshs 5,000)
+4. **Frontend calls backend API** (`/.netlify/functions/process-payment`)
 5. **Backend processes payment** via Zeno API
 6. **Success/Error message** displayed to user
 
 ## 🔧 API Endpoints
 
-### POST `/api/process-payment`
+### POST `/.netlify/functions/process-payment`
 Processes mobile money payment via Zeno API.
 
 **Request Body:**
@@ -70,7 +70,7 @@ Processes mobile money payment via Zeno API.
   "message": "Malipo yamepokelewa kwa mafanikio!",
   "orderId": "yt_auto_1234567890_abc123",
   "phoneNumber": "0712345678",
-  "amount": 25000
+  "amount": 5000
 }
 ```
 
@@ -82,7 +82,15 @@ Processes mobile money payment via Zeno API.
 }
 ```
 
-### GET `/api/health`
+### GET `/.netlify/functions/payment-status`
+Check payment status via Zeno API.
+
+**Query Parameters:**
+```
+orderId=yt_auto_1234567890_abc123
+```
+
+### GET `/.netlify/functions/health`
 Health check endpoint.
 
 ## 🔐 Security Features
@@ -96,23 +104,29 @@ Health check endpoint.
 
 ```
 youtube-automation/
-├── index.html          # Main landing page
-├── styles.css          # Styling
-├── server.js           # Backend API server
-├── package.json        # Node.js dependencies
-└── README.md          # This file
+├── index.html              # Main landing page
+├── styles.css              # Styling
+├── server.js               # Backend API server (for local development)
+├── netlify/                # Netlify Functions
+│   └── functions/          # Serverless functions
+│       ├── process-payment.js
+│       ├── payment-status.js
+│       └── health.js
+├── netlify.toml            # Netlify configuration
+├── package.json            # Node.js dependencies
+└── README.md               # This file
 ```
 
 ## 🎨 Customization
 
 ### Changing the Price
-Update the amount in `server.js`:
+Update the amount in `netlify/functions/process-payment.js`:
 ```javascript
-amount: 25000 // Change this value
+amount: 5000 // Change this value
 ```
 
 ### Modifying Course Details
-Update the hardcoded values in `server.js`:
+Update the hardcoded values in `netlify/functions/process-payment.js`:
 ```javascript
 buyer_email: "student@youtubeautomation.com",
 buyer_name: "YouTube Automation Student",
@@ -123,15 +137,26 @@ All popup styles are inline in `index.html` for reliability.
 
 ## 🚀 Deployment
 
-### Backend Deployment
+### Netlify Deployment (Recommended)
+This project is configured to work with Netlify Functions:
+
+1. Connect your GitHub repository to Netlify
+2. Set the build command to: `# no build command`
+3. Set the publish directory to: `.`
+4. Deploy!
+
+Netlify will automatically detect and deploy the serverless functions.
+
+### Traditional Backend Deployment
+For traditional deployment, use the Node.js server:
+
 Deploy the Node.js server to platforms like:
 - Heroku
 - Railway
 - DigitalOcean
 - AWS
 
-### Frontend Deployment
-Deploy the static files to:
+And deploy the static files to:
 - Netlify
 - Vercel
 - GitHub Pages
@@ -143,7 +168,7 @@ For issues or questions, please contact the development team.
 
 ---
 
-**Note**: Make sure to update the API URL in `index.html` when deploying to production:
-```javascript
-const response = await fetch('https://your-api-domain.com/api/process-payment', {
-```
+**Note**: When deploying to Netlify, the API endpoints are automatically mapped:
+- `/api/process-payment` → `/.netlify/functions/process-payment`
+- `/api/payment-status` → `/.netlify/functions/payment-status`
+- `/api/health` → `/.netlify/functions/health`

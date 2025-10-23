@@ -179,7 +179,7 @@
             payButton.disabled = true;
             
             // Send payment request to backend
-            fetch('/api/process-payment', {
+            fetch('/.netlify/functions/process-payment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -284,7 +284,7 @@
             }
             
             // Fetch payment status
-            fetch(`/api/payment-status/${orderId}`)
+            fetch(`/.netlify/functions/payment-status?orderId=${orderId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'completed') {

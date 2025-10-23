@@ -20,10 +20,12 @@ const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq
 // Payment endpoint
 app.post('/api/process-payment', async (req, res) => {
     try {
+        console.log('Received payment request:', req.body);
         const { phoneNumber } = req.body;
         
         // Validate phone number
         if (!phoneNumber || phoneNumber.trim() === '') {
+            console.log('Phone number validation failed: empty number');
             return res.status(400).json({
                 success: false,
                 message: 'Nambari ya simu ni lazima'
@@ -32,7 +34,9 @@ app.post('/api/process-payment', async (req, res) => {
         
         // Clean phone number
         const cleanNumber = phoneNumber.replace(/\D/g, '');
+        console.log('Cleaned phone number:', cleanNumber);
         if (cleanNumber.length < 9 || cleanNumber.length > 13) {
+            console.log('Phone number validation failed: invalid length');
             return res.status(400).json({
                 success: false,
                 message: 'Nambari ya simu si sahihi'
@@ -41,6 +45,7 @@ app.post('/api/process-payment', async (req, res) => {
         
         // Generate unique order ID
         const orderId = `yt_auto_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated order ID:', orderId);
         
         // Store initial payment status as processing
         paymentStatuses.set(orderId, {
@@ -128,6 +133,10 @@ app.post('/api/process-payment', async (req, res) => {
         
     } catch (error) {
         console.error('Payment processing error:', error);
+        // Log more details about the error
+        if (error.stack) {
+            console.error('Error stack:', error.stack);
+        }
         res.status(500).json({
             success: false,
             message: 'Tatizo limetokea wakati wa kuunganisha na seva ya malipo. Tafadhali jaribu tena baadaye au wasiliana na usaidizi.'
@@ -283,7 +292,67 @@ app.get('/api/payment-status/:orderId', async (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'YouTube Automation Payment API is running' });
+    res.json({ 
+        status: 'OK', 
+        message: 'YouTube Automation Payment API is running',
+        timestamp: new Date().toISOString(),
+        port: PORT,
+        nodeVersion: process.version
+    });
+});
+
+// Enhanced health check endpoint with external service checks
+app.get('/api/health-check', async (req, res) => {
+    try {
+        // Check ZenoPay API connectivity
+        let zenopayStatus = 'unknown';
+        let zenopayError = null;
+        
+        try {
+            const response = await nodeFetch(ZENO_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': ZENO_API_KEY
+                },
+                body: JSON.stringify({
+                    order_id: 'health_check',
+                    buyer_email: 'healthcheck@youtubeautomation.com',
+                    buyer_name: 'Health Check',
+                    buyer_phone: '0712345678',
+                    amount: 5000
+                })
+            });
+            
+            zenopayStatus = response.status === 200 ? 'OK' : `Error: ${response.status}`;
+        } catch (error) {
+            zenopayStatus = 'ERROR';
+            zenopayError = error.message;
+        }
+        
+        res.json({ 
+            status: 'OK', 
+            message: 'YouTube Automation Payment API health check',
+            timestamp: new Date().toISOString(),
+            services: {
+                server: 'OK',
+                zenopay_api: zenopayStatus,
+                zenopay_error: zenopayError
+            },
+            config: {
+                port: PORT,
+                nodeVersion: process.version,
+                zenoApiUrl: ZENO_API_URL
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'ERROR',
+            message: 'Health check failed',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // Start server
