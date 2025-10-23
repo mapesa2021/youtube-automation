@@ -1,5 +1,5 @@
 // Netlify Function for checking payment status
-const { default: nodeFetch } = require('node-fetch');
+const fetch = require('node-fetch');
 
 // ZenoPay API configuration
 const ZENO_ORDER_STATUS_URL = 'https://zenoapi.com/api/payments/order-status';
@@ -77,7 +77,7 @@ exports.handler = async (event, context) => {
                 const url = `${ZENO_ORDER_STATUS_URL}?order_id=${orderId}`;
                 console.log(`Fetching order status from: ${url}`);
                 
-                statusResponse = await nodeFetch(url, {
+                statusResponse = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'x-api-key': ZENO_API_KEY

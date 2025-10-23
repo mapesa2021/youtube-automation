@@ -180,7 +180,7 @@
             
             // Send payment request to backend
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const paymentUrl = isLocal ? '/api/process-payment' : '/.netlify/functions/process-payment';
+            const paymentUrl = isLocal ? '/api/process-payment' : '/.netlify/functions/process-payment-simple';
             console.log('Payment URL:', paymentUrl);
             console.log('Phone number:', phoneNumber);
             fetch(paymentUrl, {
