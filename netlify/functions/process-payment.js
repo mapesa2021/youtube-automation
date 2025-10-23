@@ -89,7 +89,7 @@ exports.handler = async (event, context) => {
             buyer_email: 'student@youtubeautomation.com',
             buyer_name: 'YouTube Automation Student',
             buyer_phone: cleanNumber,
-            amount: 500
+            amount: 50000
         };
         
         console.log('Processing payment for:', cleanNumber);
@@ -156,7 +156,7 @@ exports.handler = async (event, context) => {
                     status: 'processing',
                     message: 'Tunaendelea kuchakata ombi lako la malipo. Tafadhali subiri na angalia hali mara kwa mara.',
                     phoneNumber: cleanNumber,
-                    amount: 500,
+                    amount: 5000,
                     orderId: orderId
                 })
             };
@@ -180,7 +180,7 @@ exports.handler = async (event, context) => {
                     status: 'processing',
                     message: 'Tunaendelea kuchakata ombi lako la malipo. Tafadhali subiri na angalia hali mara kwa mara.',
                     phoneNumber: cleanNumber,
-                    amount: 500,
+                    amount: 5000,
                     orderId: orderId
                 })
             };
@@ -200,7 +200,7 @@ exports.handler = async (event, context) => {
                     status: 'processing',
                     message: 'Maelekezo ya malipo yamepelekwa kwenye simu yako. Tafadhali fuata maelekezo ili kukamilisha malipo.',
                     phoneNumber: cleanNumber,
-                    amount: 500,
+                    amount: 5000,
                     orderId: orderId
                 })
             };
