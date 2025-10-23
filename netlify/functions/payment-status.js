@@ -145,8 +145,17 @@ exports.handler = async (event, context) => {
         }
         
         // Check if the payment is completed
+        console.log('Checking payment status...');
+        console.log('Status response OK:', statusResponse.ok);
+        console.log('Status result:', statusResult);
+        console.log('Status result.result:', statusResult.result);
+        console.log('Status result.data:', statusResult.data);
+        
         if (statusResponse.ok && statusResult.result === 'SUCCESS' && statusResult.data && statusResult.data.length > 0) {
             const paymentData = statusResult.data[0];
+            console.log('Payment data:', paymentData);
+            console.log('Payment status:', paymentData.payment_status);
+            
             if (paymentData.payment_status === 'COMPLETED') {
                 // Update status to completed
                 paymentStatuses.set(orderId, {
