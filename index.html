@@ -179,7 +179,11 @@
             payButton.disabled = true;
             
             // Send payment request to backend
-            fetch('/.netlify/functions/process-payment', {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const paymentUrl = isLocal ? '/api/process-payment' : '/.netlify/functions/process-payment';
+            console.log('Payment URL:', paymentUrl);
+            console.log('Phone number:', phoneNumber);
+            fetch(paymentUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,8 +192,12 @@
                     phoneNumber: phoneNumber
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Payment response:', data);
                 if (data.success) {
                     // Show processing message instead of immediate success
                     showPaymentProcessing({
@@ -284,7 +292,9 @@
             }
             
             // Fetch payment status
-            fetch(`/.netlify/functions/payment-status?orderId=${orderId}`)
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const statusUrl = isLocal ? `/api/payment-status/${orderId}` : `/.netlify/functions/payment-status?orderId=${orderId}`;
+            fetch(statusUrl)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'completed') {
