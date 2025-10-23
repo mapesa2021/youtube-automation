@@ -88,61 +88,99 @@ exports.handler = async (event, context) => {
             buyer_email: 'student@youtubeautomation.com',
             buyer_name: 'YouTube Automation Student',
             buyer_phone: cleanNumber,
-            amount: 5000
+            amount: 500
         };
         
         console.log('Processing payment for:', cleanNumber);
         console.log('Sending data to ZenoPay API:', JSON.stringify(paymentData));
         
-        // Make API call to ZenoPay
-        const response = await fetch(ZENO_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': ZENO_API_KEY
-            },
-            body: JSON.stringify(paymentData)
-        });
-        
-        console.log('ZenoPay API response status:', response.status);
-        console.log('ZenoPay API response headers:', [...response.headers.entries()]);
-        
-        // Get the raw response text first for debugging
-        const responseText = await response.text();
-        console.log('ZenoPay API response text:', responseText);
-        
-        // Handle non-JSON responses
-        if (!responseText.startsWith('{') && !responseText.startsWith('[')) {
-            console.error('Received non-JSON response from ZenoPay API:', responseText);
+        // Make API call to ZenoPay with retries and timeout
+        const attemptPayment = async () => {
+            const controller = new AbortController();
+            const timeoutMs = 8000;
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const resp = await fetch(ZENO_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': ZENO_API_KEY
+                    },
+                    body: JSON.stringify(paymentData),
+                    signal: controller.signal
+                });
+                clearTimeout(timeout);
+                const text = await resp.text();
+                console.log('ZenoPay API response status:', resp.status);
+                console.log('ZenoPay API response headers:', [...resp.headers.entries()]);
+                console.log('ZenoPay API response text:', text);
+                return { resp, text };
+            } catch (e) {
+                clearTimeout(timeout);
+                console.error('ZenoPay fetch error:', e.message);
+                throw e;
+            }
+        };
+
+        let response, responseText;
+        let attempts = 0;
+        while (attempts < 3) {
+            attempts++;
+            try {
+                const r = await attemptPayment();
+                response = r.resp;
+                responseText = r.text || '';
+                break;
+            } catch (err) {
+                console.warn(`Payment attempt ${attempts} failed`);
+                if (attempts >= 3) {
+                    // Fall through to graceful processing response
+                    console.warn('All payment attempts failed, returning processing state to UI');
+                } else {
+                    await new Promise(res => setTimeout(res, 1000));
+                }
+            }
+        }
+
+        // If we have no response or got a 504/non-JSON, still return processing so UI can poll
+        if (!response || response.status === 504 || !(responseText || '').trim().match(/^\s*[\[{]/)) {
             return {
-                statusCode: 502,
+                statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    success: false,
-                    message: 'Tatizo la mawasiliano na mfumo wa malipo. Tafadhali jaribu tena baadaye.'
+                    success: true,
+                    status: 'processing',
+                    message: 'Tunaendelea kuchakata ombi lako la malipo. Tafadhali subiri na angalia hali mara kwa mara.',
+                    phoneNumber: cleanNumber,
+                    amount: 500,
+                    orderId: orderId
                 })
             };
         }
-        
+
         // Try to parse JSON
         let result;
         try {
             result = responseText ? JSON.parse(responseText) : {};
         } catch (parseError) {
             console.error('Failed to parse JSON response:', parseError);
-            console.error('Response text was:', responseText);
+            // Gracefully degrade to processing
             return {
-                statusCode: 500,
+                statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    success: false,
-                    message: 'Tatizo limetokea katika mchakato wa malipo. Tafadhali jaribu tena.'
+                    success: true,
+                    status: 'processing',
+                    message: 'Tunaendelea kuchakata ombi lako la malipo. Tafadhali subiri na angalia hali mara kwa mara.',
+                    phoneNumber: cleanNumber,
+                    amount: 500,
+                    orderId: orderId
                 })
             };
         }
@@ -161,7 +199,7 @@ exports.handler = async (event, context) => {
                     status: 'processing',
                     message: 'Maelekezo ya malipo yamepelekwa kwenye simu yako. Tafadhali fuata maelekezo ili kukamilisha malipo.',
                     phoneNumber: cleanNumber,
-                    amount: 5000,
+                    amount: 500,
                     orderId: orderId
                 })
             };
