@@ -21,7 +21,11 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const orderId = event.queryStringParameters?.orderId || event.path.split('/').pop();
+        // Extract order ID from query parameters
+        const orderId = event.queryStringParameters?.orderId;
+        
+        console.log('Checking payment status for order ID:', orderId);
+        console.log('Event:', JSON.stringify(event, null, 2));
         
         if (!orderId) {
             return {
@@ -49,7 +53,10 @@ exports.handler = async (event, context) => {
         
         while (retries > 0) {
             try {
-                statusResponse = await nodeFetch(`${ZENO_ORDER_STATUS_URL}?order_id=${orderId}`, {
+                const url = `${ZENO_ORDER_STATUS_URL}?order_id=${orderId}`;
+                console.log(`Fetching order status from: ${url}`);
+                
+                statusResponse = await nodeFetch(url, {
                     method: 'GET',
                     headers: {
                         'x-api-key': ZENO_API_KEY
@@ -57,11 +64,15 @@ exports.handler = async (event, context) => {
                 });
                 
                 statusText = await statusResponse.text();
-                console.log('ZenoPay Order Status API response:', statusText);
+                console.log('ZenoPay Order Status API response status:', statusResponse.status);
+                console.log('ZenoPay Order Status API response headers:', [...statusResponse.headers.entries()]);
+                console.log('ZenoPay Order Status API response text:', statusText);
                 
                 // If we get a valid response, break out of retry loop
                 if (statusText.startsWith('{') || statusText.startsWith('[')) {
                     break;
+                } else {
+                    console.log('Received non-JSON response, retrying...');
                 }
             } catch (fetchError) {
                 console.error(`Error fetching status (attempt ${4 - retries}):`, fetchError);

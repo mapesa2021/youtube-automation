@@ -6,6 +6,9 @@ const ZENO_API_URL = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
 const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
 
 exports.handler = async (event, context) => {
+    console.log('Process payment function called');
+    console.log('Event:', JSON.stringify(event, null, 2));
+    
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -17,7 +20,10 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const { phoneNumber } = JSON.parse(event.body || '{}');
+        const body = JSON.parse(event.body || '{}');
+        const { phoneNumber } = body;
+        
+        console.log('Received phone number:', phoneNumber);
         
         // Validate phone number
         if (!phoneNumber || phoneNumber.trim() === '') {
@@ -32,6 +38,8 @@ exports.handler = async (event, context) => {
         
         // Clean phone number
         const cleanNumber = phoneNumber.replace(/\D/g, '');
+        console.log('Cleaned phone number:', cleanNumber);
+        
         if (cleanNumber.length < 9 || cleanNumber.length > 13) {
             return {
                 statusCode: 400,
@@ -44,6 +52,7 @@ exports.handler = async (event, context) => {
         
         // Generate unique order ID
         const orderId = `yt_auto_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated order ID:', orderId);
         
         // Prepare payment data for ZenoPay API
         const paymentData = {
@@ -68,6 +77,7 @@ exports.handler = async (event, context) => {
         });
         
         console.log('ZenoPay API response status:', response.status);
+        console.log('ZenoPay API response headers:', [...response.headers.entries()]);
         
         // Get the raw response text first for debugging
         const responseText = await response.text();
