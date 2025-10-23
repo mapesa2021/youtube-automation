@@ -1,5 +1,5 @@
 // Netlify Function for processing payments
-const fetch = require('node-fetch');
+const { default: fetch } = require('node-fetch');
 
 // ZenoPay API configuration
 const ZENO_API_URL = 'https://zenoapi.com/api/payments/mobile_money_tanzania';

@@ -1,4 +1,6 @@
 // Simplified Netlify Function for processing payments
+const { default: fetch } = require('node-fetch');
+
 exports.handler = async (event, context) => {
     console.log('Simple process payment function called');
     

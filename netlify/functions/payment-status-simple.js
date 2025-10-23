@@ -1,5 +1,5 @@
 // Simplified and robust payment status function
-const fetch = require('node-fetch');
+const { default: fetch } = require('node-fetch');
 
 const ZENO_ORDER_STATUS_URL = 'https://zenoapi.com/api/payments/order-status';
 const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
