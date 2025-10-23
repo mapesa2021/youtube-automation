@@ -8,6 +8,7 @@ const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq
 exports.handler = async (event, context) => {
     console.log('Process payment function called');
     console.log('Event:', JSON.stringify(event, null, 2));
+    console.log('Context:', JSON.stringify(context, null, 2));
     
     // Handle CORS preflight requests
     if (event.httpMethod === 'OPTIONS') {
@@ -37,7 +38,9 @@ exports.handler = async (event, context) => {
     }
 
     try {
+        console.log('Parsing request body...');
         const body = JSON.parse(event.body || '{}');
+        console.log('Parsed body:', body);
         const { phoneNumber } = body;
         
         console.log('Received phone number:', phoneNumber);
