@@ -299,7 +299,7 @@
             
             // Fetch payment status
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const statusUrl = isLocal ? `/api/payment-status/${orderId}` : `/.netlify/functions/payment-status-new?orderId=${orderId}`;
+            const statusUrl = isLocal ? `/api/payment-status/${orderId}` : `/.netlify/functions/payment-status-simple?orderId=${orderId}`;
             console.log('Status URL:', statusUrl);
             fetch(statusUrl)
                 .then(response => {
