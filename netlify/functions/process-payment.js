@@ -1,14 +1,15 @@
 // Netlify Function for processing payments
-const { default: fetch } = require('node-fetch');
-
-// ZenoPay API configuration
-const ZENO_API_URL = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
-const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
-
 exports.handler = async (event, context) => {
     console.log('Process payment function called');
     console.log('Event:', JSON.stringify(event, null, 2));
     console.log('Context:', JSON.stringify(context, null, 2));
+    
+    // Use dynamic import for node-fetch
+    const { default: fetch } = await import('node-fetch');
+    
+    // ZenoPay API configuration
+    const ZENO_API_URL = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
+    const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
     
     // Handle CORS preflight requests
     if (event.httpMethod === 'OPTIONS') {

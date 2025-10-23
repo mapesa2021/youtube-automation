@@ -1,10 +1,9 @@
 // Direct test of ZenoPay status API
-const { default: fetch } = require('node-fetch');
-
-const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
-
 exports.handler = async (event, context) => {
     console.log('Direct ZenoPay test called');
+    
+    // Use dynamic import for node-fetch
+    const { default: fetch } = await import('node-fetch');
     
     if (event.httpMethod === 'OPTIONS') {
         return {
@@ -19,6 +18,8 @@ exports.handler = async (event, context) => {
     }
     
     try {
+        const ZENO_API_KEY = 'ArtYqYpjmi8UjbWqxhCe7SLqpSCbws-_7vjudTuGR91PT6pmWX85lapiuq7xpXsJ2BkPZ9gkxDEDotPgtjdV6g';
+        
         const orderId = event.queryStringParameters?.orderId || 'yt_auto_1761220068188_n10ch2q96';
         console.log('Testing order ID:', orderId);
         

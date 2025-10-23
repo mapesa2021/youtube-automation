@@ -1,8 +1,9 @@
 // Simplified Netlify Function for processing payments
-const { default: fetch } = require('node-fetch');
-
 exports.handler = async (event, context) => {
     console.log('Simple process payment function called');
+    
+    // Use dynamic import for node-fetch
+    const { default: fetch } = await import('node-fetch');
     
     // Handle CORS preflight requests
     if (event.httpMethod === 'OPTIONS') {
